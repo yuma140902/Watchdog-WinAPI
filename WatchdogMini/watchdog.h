@@ -14,4 +14,3 @@ VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired);
 BOOL watchdog_isProcessAlive(DWORD pid);
 DWORD watchdog_respawnProcess();
 
-void private_setInterval(IN Watchdog* wd, DWORD ms, WAITORTIMERCALLBACK func);

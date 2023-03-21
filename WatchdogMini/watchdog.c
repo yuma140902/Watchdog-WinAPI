@@ -1,35 +1,24 @@
 #include "watchdog.h"
+#include "alert.h"
 #include "timer.h"
 #include "window.h"
 #include <windows.h>
 
-void private_setInterval(IN Watchdog* wd, DWORD ms, WAITORTIMERCALLBACK func)
-{
-    WCHAR buf[256] = { 0 };
-    BOOL bSuccess = timer_setInterval(wd->timer, ms, func, wd);
-    if (!bSuccess) {
-        wsprintf(buf, L"CreateTimerQueueTimer failed (%d)", GetLastError());
-        MessageBox(NULL, buf, L"", MB_OK);
-        return;
-    }
-}
-
 void watchdog_setup(OUT Watchdog* wd, DWORD dwTargetPID, IN Timer* timer, IN Window* window)
 {
-    WCHAR buf[256] = { 0 };
-
     wd->dwTargetPID = dwTargetPID;
     wd->timer = timer;
     wd->window = window;
 
     BOOL bSuccess = timer_init(wd->timer);
     if (!bSuccess) {
-        wsprintf(buf, L"CreateTimerQueue failed (%d)", GetLastError());
-        MessageBox(NULL, buf, L"", MB_OK);
-        return;
+        alert(L"timer_init", GetLastError());
     }
 
-    private_setInterval(wd, 1000, watchdog_timerRoutine);
+    bSuccess = timer_setInterval(wd->timer, 1000, watchdog_timerRoutine, wd);
+    if (!bSuccess) {
+        alert(L"timer_setInterval", GetLastError());
+    }
 }
 
 VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
@@ -41,7 +30,10 @@ VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
         window_updateLabel(wd->window, wd->dwTargetPID);
     }
 
-    private_setInterval(wd, 1000, watchdog_timerRoutine);
+    BOOL bSuccess = timer_setInterval(wd->timer, 1000, watchdog_timerRoutine, lpParam);
+    if (!bSuccess) {
+        alert(L"timer_setInterval", GetLastError());
+    }
 }
 
 BOOL watchdog_isProcessAlive(DWORD pid)
@@ -89,9 +81,7 @@ DWORD watchdog_respawnProcess()
         &pi);
 
     if (!bSuccess) {
-        WCHAR buf[256] = { 0 };
-        wsprintf(buf, L"CreateProcess failed (%d)", GetLastError());
-        MessageBox(NULL, buf, L"", MB_OK);
+        alert(L"CreateProcessW", GetLastError());
         return 0;
     }
 
