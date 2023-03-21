@@ -14,7 +14,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     window_init(&w, hInstance);
     window_updateLabel(&w, wd.dwTargetPID);
 
-    watchdog_setup(&wd, w.hLabel);
+    watchdog_setup(&wd, &w);
 
     window_show(&w, nCmdShow);
 

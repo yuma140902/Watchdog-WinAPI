@@ -1,4 +1,5 @@
 #include "watchdog.h"
+#include "window.h"
 #include <windows.h>
 
 void private_setInterval(IN Watchdog *wd, DWORD ms, WAITORTIMERCALLBACK func)
@@ -12,11 +13,11 @@ void private_setInterval(IN Watchdog *wd, DWORD ms, WAITORTIMERCALLBACK func)
     }
 }
 
-void watchdog_setup(OUT Watchdog *wd, HWND hLabel)
+void watchdog_setup(OUT Watchdog *wd, IN Window *window)
 {
     WCHAR buf[256] = { 0 };
 
-    wd->hLabel = hLabel;
+    wd->window = window;
 
     wd->hTimerQueue = CreateTimerQueue();
     if (wd->hTimerQueue == NULL) {
@@ -33,10 +34,8 @@ VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
     Watchdog* wd = (Watchdog*)lpParam;
 
     if (wd->dwTargetPID == 0 || !watchdog_isProcessAlive(wd->dwTargetPID)) {
-        WCHAR buf[256] = { 0 };
         wd->dwTargetPID = watchdog_respawnProcess();
-        wsprintf(buf, L"Target: %d", wd->dwTargetPID);
-        SetWindowTextW(wd->hLabel, buf);
+        window_updateLabel(wd->window, wd->dwTargetPID);
     }
 
     private_setInterval(wd, 1000, watchdog_timerRoutine);
