@@ -1,54 +1,48 @@
 #include "watchdog.h"
 #include <windows.h>
 
-HANDLE g_hTimerQueue;
-DWORD g_dwTargetPID;
-HWND g_hLabel;
-
-void setupWatchDog(HWND hLabel);
-VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired);
-BOOL isProcessAlive(DWORD pid);
-
-void setInterval(int ms, WAITORTIMERCALLBACK func)
+void private_setInterval(IN Watchdog *wd, DWORD ms, WAITORTIMERCALLBACK func)
 {
     WCHAR buf[256] = { 0 };
     HANDLE hTimer = NULL;
-    if (!CreateTimerQueueTimer(&hTimer, g_hTimerQueue, func, NULL, ms, 0, 0)) {
+    if (!CreateTimerQueueTimer(&hTimer, wd->hTimerQueue, func, wd, ms, 0, 0)) {
         wsprintf(buf, L"CreateTimerQueueTimer failed (%d)", GetLastError());
         MessageBox(NULL, buf, L"", MB_OK);
         return;
     }
 }
 
-void setupWatchDog(HWND hLabel)
+void watchdog_setup(OUT Watchdog *wd, HWND hLabel)
 {
     WCHAR buf[256] = { 0 };
 
-    g_hLabel = hLabel;
+    wd->hLabel = hLabel;
 
-    g_hTimerQueue = CreateTimerQueue();
-    if (g_hTimerQueue == NULL) {
+    wd->hTimerQueue = CreateTimerQueue();
+    if (wd->hTimerQueue == NULL) {
         wsprintf(buf, L"CreateTimerQueue failed (%d)", GetLastError());
         MessageBox(NULL, buf, L"", MB_OK);
         return;
     }
 
-    setInterval(1000, TimerRoutine);
+    private_setInterval(wd, 1000, watchdog_timerRoutine);
 }
 
-VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
+VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
 {
-    if (g_dwTargetPID == 0 || !isProcessAlive(g_dwTargetPID)) {
+    Watchdog* wd = (Watchdog*)lpParam;
+
+    if (wd->dwTargetPID == 0 || !watchdog_isProcessAlive(wd->dwTargetPID)) {
         WCHAR buf[256] = { 0 };
-        g_dwTargetPID = respawnProcess();
-        wsprintf(buf, L"Target: %d", g_dwTargetPID);
-        SetWindowTextW(g_hLabel, buf);
+        wd->dwTargetPID = watchdog_respawnProcess();
+        wsprintf(buf, L"Target: %d", wd->dwTargetPID);
+        SetWindowTextW(wd->hLabel, buf);
     }
 
-    setInterval(1000, TimerRoutine);
+    private_setInterval(wd, 1000, watchdog_timerRoutine);
 }
 
-BOOL isProcessAlive(DWORD pid)
+BOOL watchdog_isProcessAlive(DWORD pid)
 {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
     if (hProcess == NULL) {
@@ -65,7 +59,7 @@ BOOL isProcessAlive(DWORD pid)
     return dwExitCode == STILL_ACTIVE;
 }
 
-DWORD respawnProcess()
+DWORD watchdog_respawnProcess()
 {
     HANDLE hProcess = GetCurrentProcess();
 

@@ -7,9 +7,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
     const wchar_t CLASS_NAME[] = L"Watchdog Window Class";
+    Watchdog wd = { 0 };
 
     int targetPid = _wtoi(pCmdLine);
-    g_dwTargetPID = targetPid;
+    wd.dwTargetPID = targetPid;
 
     // Window Class‚ð“o˜^‚·‚é
     WNDCLASS wc = { 0 };
@@ -55,10 +56,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     WCHAR buf[256] = { 0 };
-    wsprintf(buf, L"Target: %d", g_dwTargetPID);
+    wsprintf(buf, L"Target: %d", wd.dwTargetPID);
     SetWindowTextW(label, buf);
 
-    setupWatchDog(label);
+    watchdog_setup(&wd, label);
 
     ShowWindow(hwnd, nCmdShow);
 
