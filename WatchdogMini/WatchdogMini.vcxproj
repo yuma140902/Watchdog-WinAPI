@@ -128,10 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="timer.c" />
     <ClCompile Include="watchdog.c" />
     <ClCompile Include="window.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="timer.h" />
     <ClInclude Include="watchdog.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>

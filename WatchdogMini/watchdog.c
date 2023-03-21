@@ -1,27 +1,29 @@
 #include "watchdog.h"
+#include "timer.h"
 #include "window.h"
 #include <windows.h>
 
-void private_setInterval(IN Watchdog *wd, DWORD ms, WAITORTIMERCALLBACK func)
+void private_setInterval(IN Watchdog* wd, DWORD ms, WAITORTIMERCALLBACK func)
 {
     WCHAR buf[256] = { 0 };
-    HANDLE hTimer = NULL;
-    if (!CreateTimerQueueTimer(&hTimer, wd->hTimerQueue, func, wd, ms, 0, 0)) {
+    BOOL bSuccess = timer_setInterval(wd->timer, ms, func, wd);
+    if (!bSuccess) {
         wsprintf(buf, L"CreateTimerQueueTimer failed (%d)", GetLastError());
         MessageBox(NULL, buf, L"", MB_OK);
         return;
     }
 }
 
-void watchdog_setup(OUT Watchdog* wd, DWORD dwTargetPID, IN Window* window)
+void watchdog_setup(OUT Watchdog* wd, DWORD dwTargetPID, IN Timer* timer, IN Window* window)
 {
     WCHAR buf[256] = { 0 };
 
     wd->dwTargetPID = dwTargetPID;
+    wd->timer = timer;
     wd->window = window;
 
-    wd->hTimerQueue = CreateTimerQueue();
-    if (wd->hTimerQueue == NULL) {
+    BOOL bSuccess = timer_init(wd->timer);
+    if (!bSuccess) {
         wsprintf(buf, L"CreateTimerQueue failed (%d)", GetLastError());
         MessageBox(NULL, buf, L"", MB_OK);
         return;
