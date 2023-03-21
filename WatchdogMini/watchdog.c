@@ -15,13 +15,13 @@ void watchdog_setup(OUT Watchdog* wd, DWORD dwTargetPID, IN Timer* timer, IN Win
         alert(L"timer_init", GetLastError());
     }
 
-    bSuccess = timer_setInterval(wd->timer, 1000, watchdog_timerRoutine, wd);
+    bSuccess = timer_setInterval(wd->timer, 1000, private_watchdog_timerRoutine, wd);
     if (!bSuccess) {
         alert(L"timer_setInterval", GetLastError());
     }
 }
 
-VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
+VOID CALLBACK private_watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
 {
     Watchdog* wd = (Watchdog*)lpParam;
 
@@ -30,7 +30,7 @@ VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired)
         window_updateLabel(wd->window, wd->dwTargetPID);
     }
 
-    BOOL bSuccess = timer_setInterval(wd->timer, 1000, watchdog_timerRoutine, lpParam);
+    BOOL bSuccess = timer_setInterval(wd->timer, 1000, private_watchdog_timerRoutine, lpParam);
     if (!bSuccess) {
         alert(L"timer_setInterval", GetLastError());
     }
