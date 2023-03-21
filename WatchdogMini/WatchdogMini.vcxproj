@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="main.c" />
     <ClCompile Include="watchdog.c" />
+    <ClCompile Include="window.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="watchdog.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,9 +21,15 @@
     <ClCompile Include="watchdog.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="window.c">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="watchdog.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="window.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
