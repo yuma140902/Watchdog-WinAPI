@@ -127,12 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="alert.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="timer.c" />
     <ClCompile Include="watchdog.c" />
     <ClCompile Include="window.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="alert.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="watchdog.h" />
     <ClInclude Include="window.h" />
