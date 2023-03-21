@@ -8,7 +8,7 @@ typedef struct {
     Window* window;
 } Watchdog;
 
-void watchdog_setup(OUT Watchdog* wd, IN Window* window);
+void watchdog_setup(OUT Watchdog* wd, DWORD dwTargetPID, IN Window* window);
 VOID CALLBACK watchdog_timerRoutine(PVOID lpParam, BOOLEAN timerOrWaitFired);
 BOOL watchdog_isProcessAlive(DWORD pid);
 DWORD watchdog_respawnProcess();

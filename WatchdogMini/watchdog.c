@@ -13,10 +13,11 @@ void private_setInterval(IN Watchdog *wd, DWORD ms, WAITORTIMERCALLBACK func)
     }
 }
 
-void watchdog_setup(OUT Watchdog *wd, IN Window *window)
+void watchdog_setup(OUT Watchdog* wd, DWORD dwTargetPID, IN Window* window)
 {
     WCHAR buf[256] = { 0 };
 
+    wd->dwTargetPID = dwTargetPID;
     wd->window = window;
 
     wd->hTimerQueue = CreateTimerQueue();
